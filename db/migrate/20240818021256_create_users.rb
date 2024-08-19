@@ -8,6 +8,8 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.string :password_digest,null: false 
       t.string :cpf,null: false 
       t.string :phone,null: false 
+      t.belongs_to :company, foreign_key: true, type: :uuid
+
       t.timestamps
     end
   end

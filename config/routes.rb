@@ -1,6 +1,11 @@
 Rails.application.routes.draw do
+  resources :addresses
+  resources :order_products
+  resources :orders
   resources :products
   post "login", to: "users#login"
+  get "company-orders", to: "orders#company_orders"
+  get "company-products", to: "products#list_company_products"
 
   resources :users
   resources :companies

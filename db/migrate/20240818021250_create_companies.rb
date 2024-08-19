@@ -11,8 +11,6 @@ class CreateCompanies < ActiveRecord::Migration[7.2]
       t.string :number,null: false
       t.string :complement
 
-      t.belongs_to :user, foreign_key: true, type: :uuid, null: false
-
       t.timestamps
     end
   end

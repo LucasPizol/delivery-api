@@ -1,5 +1,4 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[ show update destroy ]
   skip_before_action :authenticated, only: %i[login create]
 
   def login 
@@ -24,24 +23,22 @@ class UsersController < ApplicationController
         email: user.email,
         name: user.name,
         role: user.role,
-        token: token
+        phone: user.phone,
+        cpf: user.cpf,
+        token: token,
+        company_id: user.company_id
       }
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
     end
   end
 
-
-  # GET /users
   def index
-    @users = User.all
-
-    render json: @users
+    render json: @current_user
   end
 
-  # GET /users/1
   def show
-    render json: @user
+    render status: :not_found
   end
 
   # POST /users
@@ -55,45 +52,37 @@ class UsersController < ApplicationController
     copy_user_params[:cpf] = user_params[:cpf]
                             .gsub(/[^0-9]/, '')
 
-    @user = User.new(copy_user_params)
+    user = User.new(copy_user_params)
     
-    if @user.save
-      token = JwtService.encode({ id: @user.id })
+    if user.save
+      token = JwtService.encode({ id: user.id })
 
       render json: { 
-        id: @user.id,
-        username: @user.username,
-        email: @user.email,
-        name: @user.name,
-        role: @user.role,
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
         token: token
-      }, status: :created, location: @user
+      }, status: :created, location: user
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: user.errors, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /users/1
   def update
-    if @user.update(user_params)
-      render json: @user
+    if @current_user.update(user_params)
+      render json: @current_user
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: @current_user, status: :unprocessable_entity
     end
   end
 
-  # DELETE /users/1
   def destroy
-    @user.destroy!
+    render status: :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
-    end
-
-    # Only allow a list of trusted parameters through.
     def user_params
       params.permit(:username, :email, :name, :role, :password, :password_confirmation, :cpf, :phone)
     end
